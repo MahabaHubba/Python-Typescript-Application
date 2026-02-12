@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -13,6 +14,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+messages: list[str] = []
+
+class MessageCreate(BaseModel):
+    text:str
+
 @app.get("/")
 def root():
     return {"message": "Backend is running"}
+
+@app.get("/messages")
+def get_messages():
+    return{"mesages": messages}
+
+@app.post("/messages")
+def create_message(message: MessageCreate):
+    messages.append(message.text)
+    return {"status": "ok"}
+
+
