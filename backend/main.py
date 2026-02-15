@@ -52,7 +52,11 @@ def root():
 @app.get("/messages")
 def get_messages(db: Session = Depends(get_db)):
     messages = db.query(Message).all()
-    return {"messages": [m.text for m in messages]}
+    return {
+        "messages": [
+            {"text": m.text} for m in messages
+        ]
+    }
 
 @app.post("/messages")
 def create_message(message: MessageCreate, db: Session = Depends(get_db)):

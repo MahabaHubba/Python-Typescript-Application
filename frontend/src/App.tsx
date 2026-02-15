@@ -1,30 +1,26 @@
 import { useEffect, useState } from "react";
+import type { Message } from "./types/message";
+import { fetchMessages, createMessage } from "./services/messageService";
 
 function App() {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
-  const fetchMessages = () => {
-    fetch("http://localhost:8000/messages")
-      .then((res) => res.json())
-      .then((data) => setMessages(data.messages ?? []));
+  const loadMessages = async () => {
+    const data = await fetchMessages();
+    setMessages(data);
   };
 
   useEffect(() => {
-    fetchMessages();
+    loadMessages();
   }, []);
 
-  const submitMessage = async () => {
-    await fetch("http://localhost:8000/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: message }),
-    });
+  const handleSubmit = async () => {
+    if (!message.trim()) return;
 
+    await createMessage({ text: message });
     setMessage("");
-    fetchMessages();
+    loadMessages();
   };
 
   return (
@@ -37,11 +33,11 @@ function App() {
         placeholder="Type a message"
       />
 
-      <button onClick={submitMessage}>Send</button>
+      <button onClick={handleSubmit}>Send</button>
 
-       <ul>
-      {messages?.map((m, i) => (
-          <li key={i}>{m}</li>
+      <ul>
+        {messages.map((m, i) => (
+          <li key={i}>{m.text}</li>
         ))}
       </ul>
     </div>
